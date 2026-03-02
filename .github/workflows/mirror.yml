@@ -1,0 +1,26 @@
+name: Mirroring a GB Soluciones Digitales
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # ESTA LÍNEA ES LA CLAVE: evita que el bot pise tu token
+          persist-credentials: false
+
+      - name: Configurar y Empujar al Espejo
+        env:
+          OP_TOKEN: ${{ secrets.ORG_PAT }}
+        run: |
+          git remote add mirror "https://x-access-token:${OP_TOKEN}@github.com/GB-Soluciones-Digitales/Ecommerce_Camel_Shop_Backend.git"
+          git config --local http.https://github.com/.extraheader ""
+          git push --mirror mirror
