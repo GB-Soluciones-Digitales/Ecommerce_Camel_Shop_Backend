@@ -5,6 +5,10 @@ import com.ecommerce.backend.dto.ProductoDTO;
 import com.ecommerce.backend.service.ProductoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,31 +25,20 @@ public class ProductoController {
     // ===== ENDPOINTS PÚBLICOS =====
     
     @GetMapping("/publico")
-    public ResponseEntity<List<ProductoDTO>> obtenerProductosActivos() {
-        return ResponseEntity.ok(productoService.obtenerProductosActivos());
+    public ResponseEntity<Page<ProductoDTO>> obtenerProductos(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String categoria,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return ResponseEntity.ok(productoService.obtenerProductosPublicos(search, categoria, pageable));
     }
-    
+
     @GetMapping("/publico/{id}")
     public ResponseEntity<ProductoDTO> obtenerProductoPublico(@PathVariable Long id) {
-        try {
-            ProductoDTO producto = productoService.obtenerProductoPorId(id);
-            if (producto.getActivo()) {
-                return ResponseEntity.ok(producto);
-            }
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
-    @GetMapping("/publico/buscar")
-    public ResponseEntity<List<ProductoDTO>> buscarProductos(@RequestParam String nombre) {
-        return ResponseEntity.ok(productoService.buscarPorNombre(nombre));
-    }
-    
-    @GetMapping("/publico/categoria/{categoriaId}")
-    public ResponseEntity<List<ProductoDTO>> obtenerPorCategoria(@PathVariable Long categoriaId) {
-        return ResponseEntity.ok(productoService.buscarPorCategoria(categoriaId));
+        ProductoDTO dto = productoService.obtenerProductoPorId(id);
+        return dto.getActivo() ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
     
     // ===== ENDPOINTS DE ADMINISTRACIÓN =====

@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.ecommerce.backend.dto.ProductoCreateDTO;
 import com.ecommerce.backend.dto.ProductoDTO;
@@ -25,73 +27,57 @@ public class ProductoService {
     
     private final ProductoRepository productoRepository;
     private final CategoriaRepository categoriaRepository;
-    
-    // Obtener todos los productos activos
-    public List<ProductoDTO> obtenerProductosActivos() {
-        return productoRepository.findByActivoTrue()
-            .stream()
-            .map(this::convertirADTO)
-            .collect(Collectors.toList());
+
+    // Lógica para el catálogo público
+    public Page<ProductoDTO> obtenerProductosPublicos(String search, String categoria, Pageable pageable) {
+        Page<Producto> productos;
+
+        if (search != null && !search.isEmpty() && categoria != null && !categoria.isEmpty()) {
+            productos = productoRepository.buscarPorNombreYCategoriaPaginado(search, categoria, pageable);
+        } else if (search != null && !search.isEmpty()) {
+            productos = productoRepository.buscarPorNombrePaginado(search, pageable);
+        } else if (categoria != null && !categoria.isEmpty()) {
+            productos = productoRepository.findByCategoriaNombreIgnoreCaseAndActivoTrue(categoria, pageable);
+        } else {
+            productos = productoRepository.findByActivoTrue(pageable);
+        }
+
+        return productos.map(this::convertirADTO);
     }
-    
-    // Obtener todos los productos (para admin)
+
+    // Endpoints de Administración
     public List<ProductoDTO> obtenerTodosLosProductos() {
-        return productoRepository.findAll()
-            .stream()
-            .map(this::convertirADTO)
-            .collect(Collectors.toList());
+        return productoRepository.findAll().stream().map(this::convertirADTO).collect(Collectors.toList());
     }
-    
-    // Buscar productos por nombre
-    public List<ProductoDTO> buscarPorNombre(String nombre) {
-        return productoRepository.buscarPorNombre(nombre)
-            .stream()
-            .map(this::convertirADTO)
-            .collect(Collectors.toList());
-    }
-    
-    // Buscar productos por categoría
-    public List<ProductoDTO> buscarPorCategoria(Long categoriaId) {
-        return productoRepository.findByCategoriaIdAndActivoTrue(categoriaId)
-            .stream()
-            .map(this::convertirADTO)
-            .collect(Collectors.toList());
-    }
-    
-    // Obtener producto por ID
+
     public ProductoDTO obtenerProductoPorId(Long id) {
         Producto producto = productoRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
         return convertirADTO(producto);
     }
-    
-    // Crear nuevo producto
+
     @Transactional
     public ProductoDTO crearProducto(ProductoCreateDTO dto) {
         Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
-            .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
         
         Producto producto = Producto.builder()
-            .nombre(dto.getNombre())
-            .descripcion(dto.getDescripcion())
-            .precio(dto.getPrecio())
-            .imagenes(dto.getImagenes())
-            .categoria(categoria)
-            .activo(true)
-            .build();
+                .nombre(dto.getNombre())
+                .descripcion(dto.getDescripcion())
+                .precio(dto.getPrecio())
+                .imagenes(dto.getImagenes())
+                .categoria(categoria)
+                .activo(true)
+                .build();
         
-        // Procesar Variantes y calcular Stock Total
         procesarVariantes(producto, dto.getVariantes());
-        
-        Producto guardado = productoRepository.save(producto);
-        return convertirADTO(guardado);
+        return convertirADTO(productoRepository.save(producto));
     }
-    
-    // Actualizar producto
+
     @Transactional
     public ProductoDTO actualizarProducto(Long id, ProductoCreateDTO dto) {
         Producto producto = productoRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
         
         producto.setNombre(dto.getNombre());
         producto.setDescripcion(dto.getDescripcion());
@@ -99,80 +85,57 @@ public class ProductoService {
         producto.setImagenes(dto.getImagenes());
         
         Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
-            .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
         producto.setCategoria(categoria);
 
         producto.getVariantes().clear();
         procesarVariantes(producto, dto.getVariantes());
         
-        Producto actualizado = productoRepository.save(producto);
-        return convertirADTO(actualizado);
+        return convertirADTO(productoRepository.save(producto));
     }
 
-    private void procesarVariantes(Producto producto, List<ProductoCreateDTO.VarianteDTO> variantesDto) {
-        if (variantesDto == null || variantesDto.isEmpty()) return;
+    @Transactional
+    public ProductoDTO toggleEstadoProducto(Long id) {
+        Producto producto = productoRepository.findById(id).orElseThrow();
+        producto.setActivo(!producto.getActivo());
+        return convertirADTO(productoRepository.save(producto));
+    }
 
+    @Transactional
+    public void eliminarProducto(Long id) {
+        productoRepository.deleteById(id);
+    }
+
+    // Métodos Auxiliares
+    private void procesarVariantes(Producto producto, List<ProductoCreateDTO.VarianteDTO> variantesDto) {
+        if (variantesDto == null) return;
         int stockTotal = 0;
         for (ProductoCreateDTO.VarianteDTO vDto : variantesDto) {
-            Map<String, Integer> stockMapa = vDto.getStockPorTalle() != null 
-                                            ? vDto.getStockPorTalle() 
-                                            : new HashMap<>();
-
+            Map<String, Integer> stockMapa = vDto.getStockPorTalle() != null ? vDto.getStockPorTalle() : new HashMap<>();
             ProductoVariantes variante = ProductoVariantes.builder()
-                .color(vDto.getColor() != null ? vDto.getColor() : "Único")
-                .stockPorTalle(stockMapa)
-                .build();
-            
+                    .color(vDto.getColor() != null ? vDto.getColor() : "Único")
+                    .stockPorTalle(stockMapa)
+                    .build();
             producto.addVariante(variante);
-            
-            stockTotal += stockMapa.values().stream()
-                .filter(Objects::nonNull)
-                .mapToInt(Integer::intValue).sum();
+            stockTotal += stockMapa.values().stream().filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
         }
         producto.setStock(stockTotal);
     }
 
     private ProductoDTO convertirADTO(Producto producto) {
-        List<ProductoDTO.VarianteDTO> variantesDto = producto.getVariantes().stream()
-            .map(v -> ProductoDTO.VarianteDTO.builder()
-                .color(v.getColor())
-                .stockPorTalle(v.getStockPorTalle())
-                .build())
-            .collect(Collectors.toList());
-
         return ProductoDTO.builder()
-            .id(producto.getId())
-            .nombre(producto.getNombre())
-            .descripcion(producto.getDescripcion())
-            .precio(producto.getPrecio())
-            .stock(producto.getStock())
-            .imagenes(producto.getImagenes())
-            .activo(producto.getActivo())
-            .categoriaId(producto.getCategoria().getId())
-            .categoriaNombre(producto.getCategoria().getNombre())
-            .variantes(variantesDto)
-            .build();
-    }
-    
-    // Pausar/Activar producto 
-    @Transactional
-    public ProductoDTO toggleEstadoProducto(Long id) {
-        Producto producto = productoRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-        
-        boolean estadoActual = Boolean.TRUE.equals(producto.getActivo());
-        producto.setActivo(!estadoActual);
-        
-        Producto actualizado = productoRepository.save(producto);
-        return convertirADTO(actualizado);
-    }
-    
-    // Eliminar producto
-    @Transactional
-    public void eliminarProducto(Long id) {
-        if (!productoRepository.existsById(id)) {
-            throw new RuntimeException("Producto no encontrado");
-        }
-        productoRepository.deleteById(id);
+                .id(producto.getId())
+                .nombre(producto.getNombre())
+                .descripcion(producto.getDescripcion())
+                .precio(producto.getPrecio())
+                .stock(producto.getStock())
+                .imagenes(producto.getImagenes())
+                .activo(producto.getActivo())
+                .categoriaId(producto.getCategoria().getId())
+                .categoriaNombre(producto.getCategoria().getNombre())
+                .variantes(producto.getVariantes().stream().map(v -> 
+                    ProductoDTO.VarianteDTO.builder().color(v.getColor()).stockPorTalle(v.getStockPorTalle()).build()
+                ).collect(Collectors.toList()))
+                .build();
     }
 }
