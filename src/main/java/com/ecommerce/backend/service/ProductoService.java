@@ -45,6 +45,12 @@ public class ProductoService {
         return productos.map(this::convertirADTO);
     }
 
+    public ProductoDTO obtenerProductoPorSlug(String slug) {
+        Producto producto = productoRepository.findBySlugAndActivoTrue(slug)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        return convertirADTO(producto);
+    }
+
     // Endpoints de Administración
     public Page<ProductoDTO> obtenerProductosAdminPaginados(String search, Pageable pageable) {
         Page<Producto> productos;
@@ -76,6 +82,7 @@ public class ProductoService {
                 .imagenes(dto.getImagenes())
                 .categoria(categoria)
                 .activo(true)
+                .slug(generarSlug(dto.getNombre()))
                 .build();
         
         procesarVariantes(producto, dto.getVariantes());
@@ -91,6 +98,7 @@ public class ProductoService {
         producto.setDescripcion(dto.getDescripcion());
         producto.setPrecio(dto.getPrecio());
         producto.setImagenes(dto.getImagenes());
+        producto.setSlug(generarSlug(dto.getNombre()));
         
         Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
@@ -133,6 +141,7 @@ public class ProductoService {
     private ProductoDTO convertirADTO(Producto producto) {
         return ProductoDTO.builder()
                 .id(producto.getId())
+                .slug(producto.getSlug())
                 .nombre(producto.getNombre())
                 .descripcion(producto.getDescripcion())
                 .precio(producto.getPrecio())
@@ -145,5 +154,11 @@ public class ProductoService {
                     ProductoDTO.VarianteDTO.builder().color(v.getColor()).stockPorTalle(v.getStockPorTalle()).build()
                 ).collect(Collectors.toList()))
                 .build();
+    }
+
+    private String generarSlug(String nombre) {
+        return nombre.toLowerCase()
+                    .replaceAll("[^a-z0-9\\s]", "") 
+                    .replaceAll("\\s+", "-");
     }
 }

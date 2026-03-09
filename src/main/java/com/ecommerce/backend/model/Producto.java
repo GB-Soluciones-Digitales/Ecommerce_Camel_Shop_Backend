@@ -39,6 +39,9 @@ public class Producto {
     
     @Column(nullable = false)
     private String nombre;
+
+    @Column(unique = true)
+    private String slug;
     
     @Column(columnDefinition = "TEXT")
     private String descripcion;

@@ -40,6 +40,15 @@ public class ProductoController {
         ProductoDTO dto = productoService.obtenerProductoPorId(id);
         return dto.getActivo() ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
+
+    @GetMapping("/publico/detalle/{slug}")
+    public ResponseEntity<ProductoDTO> obtenerProductoPublicoPorSlug(@PathVariable String slug) {
+        try {
+            return ResponseEntity.ok(productoService.obtenerProductoPorSlug(slug));
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
     
     // ===== ENDPOINTS DE ADMINISTRACIÓN =====
     
