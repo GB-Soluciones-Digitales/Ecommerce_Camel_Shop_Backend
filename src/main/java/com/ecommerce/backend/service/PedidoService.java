@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -100,8 +104,23 @@ public class PedidoService {
         }
     }
 
-    public List<Pedido> obtenerTodos() {
-        return pedidoRepository.findAllByOrderByFechaDesc();
+    public Page<Pedido> obtenerPedidosPaginados(String search, EstadoPedido estado, Pageable pageable) {
+        
+        boolean tieneBusqueda = (search != null && !search.trim().isEmpty());
+        boolean tieneEstado = (estado != null);
+
+        if (tieneBusqueda && tieneEstado) {
+            return pedidoRepository.buscarPorTextoYEstadoPaginado(search, estado, pageable);
+            
+        } else if (tieneBusqueda) {
+            return pedidoRepository.buscarPorTextoPaginado(search, pageable);
+            
+        } else if (tieneEstado) {
+            return pedidoRepository.findByEstado(estado, pageable);
+            
+        } else {
+            return pedidoRepository.findAll(pageable);
+        }
     }
     
     @Transactional

@@ -44,8 +44,14 @@ public class ProductoController {
     // ===== ENDPOINTS DE ADMINISTRACIÓN =====
     
     @GetMapping("/admin")
-    public ResponseEntity<List<ProductoDTO>> obtenerTodosProductos() {
-        return ResponseEntity.ok(productoService.obtenerTodosLosProductos());
+    public ResponseEntity<Page<ProductoDTO>> obtenerTodosProductos(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        // Ordenamos por ID descendente para que los últimos creados salgan primero
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return ResponseEntity.ok(productoService.obtenerProductosAdminPaginados(search, pageable));
     }
     
     @GetMapping("/admin/{id}")

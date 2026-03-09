@@ -2,6 +2,10 @@ package com.ecommerce.backend.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -42,8 +46,14 @@ public class PedidoController {
 
     // Listar pedidos
     @GetMapping("/admin")
-    public ResponseEntity<List<Pedido>> listarPedidos() {
-        return ResponseEntity.ok(pedidoService.obtenerTodos());
+    public ResponseEntity<Page<Pedido>> listarPedidos(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) EstadoPedido estado,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return ResponseEntity.ok(pedidoService.obtenerPedidosPaginados(search, estado, pageable));
     }
 
     // Cambiar estado

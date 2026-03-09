@@ -6,10 +6,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ecommerce.backend.dto.ProductoCreateDTO;
 import com.ecommerce.backend.dto.ProductoDTO;
@@ -46,8 +46,16 @@ public class ProductoService {
     }
 
     // Endpoints de Administración
-    public List<ProductoDTO> obtenerTodosLosProductos() {
-        return productoRepository.findAll().stream().map(this::convertirADTO).collect(Collectors.toList());
+    public Page<ProductoDTO> obtenerProductosAdminPaginados(String search, Pageable pageable) {
+        Page<Producto> productos;
+
+        if (search != null && !search.isEmpty()) {
+            productos = productoRepository.buscarPorNombrePaginado(search, pageable);
+        } else {
+            productos = productoRepository.findAll(pageable);
+        }
+
+        return productos.map(this::convertirADTO);
     }
 
     public ProductoDTO obtenerProductoPorId(Long id) {
