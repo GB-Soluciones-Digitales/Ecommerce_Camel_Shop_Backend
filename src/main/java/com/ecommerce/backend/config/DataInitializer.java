@@ -32,7 +32,7 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         
-        // 1. USUARIO ADMIN
+        // USUARIO ADMIN
         if (usuarioRepository.findByUsername("admin").isEmpty()) {
             Usuario admin = Usuario.builder()
                     .username("admin")
@@ -45,7 +45,7 @@ public class DataInitializer implements CommandLineRunner {
             usuarioRepository.save(admin);
         }
 
-        // 2. CATEGORÍAS Y PRODUCTOS
+        // CATEGORÍAS Y PRODUCTOS
         if (categoriaRepository.count() == 0) {
             Categoria remeras = categoriaRepository.save(Categoria.builder().nombre("Remeras").build());
             Categoria vestidos = categoriaRepository.save(Categoria.builder().nombre("Vestidos").build());

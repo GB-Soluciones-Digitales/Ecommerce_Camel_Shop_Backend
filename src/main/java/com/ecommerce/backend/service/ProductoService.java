@@ -28,7 +28,7 @@ public class ProductoService {
     private final ProductoRepository productoRepository;
     private final CategoriaRepository categoriaRepository;
 
-    // Lógica para el catálogo público
+    // Lógica para el público
     public Page<ProductoDTO> obtenerProductosPublicos(String search, String categoria, Pageable pageable) {
         Page<Producto> productos;
 
@@ -51,7 +51,7 @@ public class ProductoService {
         return convertirADTO(producto);
     }
 
-    // Endpoints de Administración
+    // Lógica para la Administración
     public Page<ProductoDTO> obtenerProductosAdminPaginados(String search, Pageable pageable) {
         Page<Producto> productos;
 

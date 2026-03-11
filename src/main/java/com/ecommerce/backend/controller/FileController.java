@@ -20,17 +20,15 @@ public class FileController {
     @PostMapping
     public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
-            // 1. Subir a Cloudinary
+            // Subir a Cloudinary
             String fileUrl = cloudinaryService.uploadFile(file);
             
-            // 2. Responder al Frontend
+            // Responder al Frontend
             Map<String, String> response = new HashMap<>();
             
-            // CLAVE: Ponemos la URL completa en el campo 'filename'
-            // Así tu frontend (que hace uploadRes.filename) guarda el link de Cloudinary directo.
             response.put("filename", fileUrl); 
             
-            response.put("url", fileUrl); // Lo ponemos acá también por si acaso
+            response.put("url", fileUrl);
             response.put("message", "Imagen subida a Cloudinary");
             
             return ResponseEntity.ok(response);

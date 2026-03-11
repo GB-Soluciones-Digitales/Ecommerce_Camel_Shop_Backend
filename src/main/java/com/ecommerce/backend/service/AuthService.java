@@ -1,10 +1,5 @@
 package com.ecommerce.backend.service;
 
-import com.ecommerce.backend.dto.LoginRequest;
-import com.ecommerce.backend.dto.LoginResponse;
-import com.ecommerce.backend.model.Usuario;
-import com.ecommerce.backend.repository.UsuarioRepository;
-import com.ecommerce.backend.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,6 +7,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.ecommerce.backend.dto.LoginRequest;
+import com.ecommerce.backend.dto.LoginResponse;
+import com.ecommerce.backend.model.Usuario;
+import com.ecommerce.backend.repository.UsuarioRepository;
+import com.ecommerce.backend.security.JwtUtil;
 
 @Service
 public class AuthService {
@@ -53,7 +54,7 @@ public class AuthService {
             .build();
     }
     
-    // Método para crear usuario inicial (ejecutar una vez)
+    // Método para crear usuario inicial
     public Usuario crearUsuarioInicial(String username, String password, String email, String nombreCompleto) {
         if (usuarioRepository.existsByUsername(username)) {
             throw new RuntimeException("El usuario ya existe");

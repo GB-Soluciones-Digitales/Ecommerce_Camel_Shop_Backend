@@ -1,9 +1,5 @@
 package com.ecommerce.backend.controller;
 
-import com.ecommerce.backend.dto.ProductoCreateDTO;
-import com.ecommerce.backend.dto.ProductoDTO;
-import com.ecommerce.backend.service.ProductoService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,8 +7,23 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.ecommerce.backend.dto.ProductoCreateDTO;
+import com.ecommerce.backend.dto.ProductoDTO;
+import com.ecommerce.backend.service.ProductoService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/productos")
@@ -22,7 +33,7 @@ public class ProductoController {
     @Autowired
     private ProductoService productoService;
     
-    // ===== ENDPOINTS PÚBLICOS =====
+    // ENDPOINTS PÚBLICOS
     
     @GetMapping("/publico")
     public ResponseEntity<Page<ProductoDTO>> obtenerProductos(
@@ -50,7 +61,7 @@ public class ProductoController {
         }
     }
     
-    // ===== ENDPOINTS DE ADMINISTRACIÓN =====
+    // ENDPOINTS DE ADMINISTRACIÓN
     
     @GetMapping("/admin")
     public ResponseEntity<Page<ProductoDTO>> obtenerTodosProductos(
@@ -58,7 +69,6 @@ public class ProductoController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         
-        // Ordenamos por ID descendente para que los últimos creados salgan primero
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         return ResponseEntity.ok(productoService.obtenerProductosAdminPaginados(search, pageable));
     }

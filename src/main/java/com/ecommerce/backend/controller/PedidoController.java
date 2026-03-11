@@ -39,6 +39,7 @@ public class PedidoController {
         return ResponseEntity.ok(pedidoService.crearPedido(dto));
     }
 
+    // Crear pedido manual
     @PostMapping("/admin/manual")
     public ResponseEntity<Pedido> crearPedidoManual(@RequestBody PedidoCreateDTO dto) {
         return ResponseEntity.ok(pedidoService.crearPedido(dto));

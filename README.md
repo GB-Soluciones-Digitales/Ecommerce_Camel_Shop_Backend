@@ -1,53 +1,33 @@
-# Camel Shop API
+# 🐫 Camel Shop API - Backend
 
-Backend RESTful desarrollado con **Java 21** y **Spring Boot 3** para la gestión integral de un E-commerce de indumentaria.  
-El sistema centraliza la lógica de negocio, la seguridad, la persistencia de datos y la gestión de pedidos de la plataforma.
+API RESTful robusta y escalable desarrollada con **Java 21** y **Spring Boot 3** para la gestión integral del E-commerce. El sistema centraliza la lógica de negocio, seguridad, manejo transaccional de pedidos y persistencia de datos en la nube.
 
----
-
-## 📌 Descripción General
-
-Camel Shop API provee una arquitectura robusta y escalable para un comercio electrónico, permitiendo:
-
-- Administración de productos con variantes (talle y color)
-- Control de stock en tiempo real
-- Gestión transaccional de pedidos
-- Seguridad basada en JWT
-- Almacenamiento de imágenes en la nube
-
-El proyecto está orientado a entornos productivos y preparado para despliegue continuo.
+![Java](https://img.shields.io/badge/Java-21-ED8B00)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5-6DB33F)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-336791)
+![Docker](https://img.shields.io/badge/Docker-Railway-2496ED)
 
 ---
 
 ## 🚀 Funcionalidades Principales
 
-- **Inventario Matricial**  
-  Manejo avanzado de productos con múltiples variantes y control granular de stock.
-
-- **Autenticación y Autorización**  
-  Seguridad implementada con Spring Security y JWT para proteger rutas administrativas.
-
-- **Gestión de Pedidos**  
-  Creación de pedidos con lógica transaccional y descuento automático de stock.
-
-- **Persistencia en la Nube**  
-  Integración con Cloudinary para la carga y optimización de imágenes de productos y comprobantes.
-
-- **Base de Datos Relacional**  
-  Modelo normalizado en PostgreSQL con relaciones One-to-Many entre productos, variantes y pedidos.
+- **Inventario Matricial:** Arquitectura de base de datos relacional capaz de manejar productos con múltiples variantes (talle y color) y descontar stock en tiempo real de forma transaccional.
+- **Seguridad y Autorización:** Implementación de Spring Security 6 y JWT para proteger rutas y endopints del panel administrativo.
+- **Gestión de Pedidos:** Creación de pedidos con lógica transaccional, evitando quiebres de stock por concurrencia.
+- **Gestión Multimedia:** Integración directa con Cloudinary API para la carga, optimización y distribución de imágenes de productos y comprobantes.
 
 ---
 
 ## 🛠️ Tecnologías Utilizadas
 
-- **Lenguaje:** Java 21 (OpenJDK)
-- **Framework:** Spring Boot 3.5.x
-- **ORM:** Hibernate / Spring Data JPA
+- **Lenguaje:** Java 21
+- **Framework:** Spring Boot 3
+- **ORM:** Spring Data JPA
 - **Seguridad:** Spring Security 6 + JWT
-- **Base de Datos:** PostgreSQL (Supabase)
-- **Almacenamiento de Archivos:** Cloudinary
+- **Base de Datos:** PostgreSQL (alojada en Supabase)
+- **Almacenamiento Cloud:** Cloudinary API
 - **Validaciones:** Jakarta Bean Validation
-- **Contenedores:** Docker
+- **Despliegue y Contenedores:** Docker + Railway
 
 ---
 
@@ -103,7 +83,6 @@ La aplicación está preparada para despliegue continuo en Railway, utilizando c
 
 ---
 
-## 📄 Licencia
-
-Este proyecto se distribuye bajo licencia MIT.
-Puede utilizarse, modificarse y distribuirse libremente.
+## 👤 Autor
+**Brian Battauz** - *Full Stack Developer*
+[Portfolio](https://portfoliobrianbattauz.vercel.app/) | [LinkedIn](www.linkedin.com/in/brian-battauz-75691a217)
