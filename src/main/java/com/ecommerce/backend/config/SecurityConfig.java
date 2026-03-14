@@ -45,7 +45,7 @@ public class SecurityConfig {
                     "/hero-slides/publico/**"
                 ).permitAll()
                 .requestMatchers(
-                    "/uploads/**",
+                    "/uploads", "/uploads/**", //Probando
                     "/productos/admin/**",
                     "/categorias/admin/**",
                     "/usuarios/**",
