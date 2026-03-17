@@ -28,4 +28,6 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
                                                      Pageable pageable);
 
     Optional<Producto> findBySlugAndActivoTrue(String slug);
+
+    Page<Producto> findByEnOfertaTrueAndActivoTrue(Pageable pageable);
 }

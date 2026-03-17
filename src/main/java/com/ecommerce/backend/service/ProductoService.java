@@ -32,6 +32,10 @@ public class ProductoService {
     public Page<ProductoDTO> obtenerProductosPublicos(String search, String categoria, Pageable pageable) {
         Page<Producto> productos;
 
+        if (categoria != null && categoria.equalsIgnoreCase("ofertas")) {
+            productos = productoRepository.findByEnOfertaTrueAndActivoTrue(pageable);
+        }
+
         if (search != null && !search.isEmpty() && categoria != null && !categoria.isEmpty()) {
             productos = productoRepository.buscarPorNombreYCategoriaPaginado(search, categoria, pageable);
         } else if (search != null && !search.isEmpty()) {
