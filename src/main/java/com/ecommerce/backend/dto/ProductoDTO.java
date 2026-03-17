@@ -19,6 +19,9 @@ public class ProductoDTO {
     private String descripcion;
     private String slug;
     private BigDecimal precio;
+    private Boolean enOferta;
+    private Integer porcentajeDescuento;
+    private BigDecimal precioFinal;
     private Integer stock;
     private List<String> imagenes;
     private Boolean activo;

@@ -48,6 +48,14 @@ public class Producto {
     
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal precio;
+
+    @Builder.Default
+    @Column(name = "en_oferta", columnDefinition = "boolean default false")
+    private Boolean enOferta = false;
+
+    @Builder.Default
+    @Column(name = "porcentaje_descuento")
+    private Integer porcentajeDescuento = 0;
     
     @Column(nullable = false)
     private Integer stock; 
@@ -69,7 +77,7 @@ public class Producto {
     @ManyToOne
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
-    
+
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
     
@@ -90,5 +98,14 @@ public class Producto {
     @PreUpdate
     protected void onUpdate() {
         fechaActualizacion = LocalDateTime.now();
+    }
+
+    public BigDecimal getPrecioFinal() {
+        if (Boolean.TRUE.equals(this.enOferta) && this.porcentajeDescuento != null && this.porcentajeDescuento > 0) {
+            BigDecimal porcentaje = BigDecimal.valueOf(this.porcentajeDescuento).divide(BigDecimal.valueOf(100));
+            BigDecimal descuento = this.precio.multiply(porcentaje);
+            return this.precio.subtract(descuento);
+        }
+        return this.precio;
     }
 }

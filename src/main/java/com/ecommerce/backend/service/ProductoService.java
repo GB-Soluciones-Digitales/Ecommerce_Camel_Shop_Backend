@@ -74,6 +74,9 @@ public class ProductoService {
     public ProductoDTO crearProducto(ProductoCreateDTO dto) {
         Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+
+        Boolean isOferta = Boolean.TRUE.equals(dto.getEnOferta());
+        Integer descuento = (isOferta && dto.getPorcentajeDescuento() != null) ? dto.getPorcentajeDescuento() : 0;
         
         Producto producto = Producto.builder()
                 .nombre(dto.getNombre())
@@ -83,6 +86,8 @@ public class ProductoService {
                 .categoria(categoria)
                 .activo(true)
                 .slug(generarSlug(dto.getNombre()))
+                .enOferta(isOferta)
+                .porcentajeDescuento(descuento)
                 .build();
         
         procesarVariantes(producto, dto.getVariantes());
@@ -99,6 +104,10 @@ public class ProductoService {
         producto.setPrecio(dto.getPrecio());
         producto.setImagenes(dto.getImagenes());
         producto.setSlug(generarSlug(dto.getNombre()));
+
+        Boolean isOferta = dto.getEnOferta() != null ? Boolean.TRUE.equals(dto.getEnOferta()) : false;
+        producto.setEnOferta(isOferta);
+        producto.setPorcentajeDescuento((isOferta && dto.getPorcentajeDescuento() != null) ? dto.getPorcentajeDescuento() : 0);
         
         Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
@@ -145,6 +154,9 @@ public class ProductoService {
                 .nombre(producto.getNombre())
                 .descripcion(producto.getDescripcion())
                 .precio(producto.getPrecio())
+                .enOferta(Boolean.TRUE.equals(producto.getEnOferta())) 
+                .porcentajeDescuento(producto.getPorcentajeDescuento() != null ? producto.getPorcentajeDescuento() : 0)
+                .precioFinal(producto.getPrecioFinal())
                 .stock(producto.getStock())
                 .imagenes(producto.getImagenes())
                 .activo(producto.getActivo())

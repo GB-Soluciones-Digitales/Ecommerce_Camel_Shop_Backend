@@ -24,6 +24,10 @@ public class ProductoCreateDTO {
     
     @NotNull @DecimalMin("0.0")
     private BigDecimal precio;
+
+    private Boolean enOferta;
+    
+    private Integer porcentajeDescuento;
     
     private List<String> imagenes;
     
