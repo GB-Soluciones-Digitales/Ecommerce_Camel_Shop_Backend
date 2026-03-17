@@ -34,9 +34,7 @@ public class ProductoService {
 
         if (categoria != null && categoria.equalsIgnoreCase("ofertas")) {
             productos = productoRepository.findByEnOfertaTrueAndActivoTrue(pageable);
-        }
-
-        if (search != null && !search.isEmpty() && categoria != null && !categoria.isEmpty()) {
+        } else if (search != null && !search.isEmpty() && categoria != null && !categoria.isEmpty()) {
             productos = productoRepository.buscarPorNombreYCategoriaPaginado(search, categoria, pageable);
         } else if (search != null && !search.isEmpty()) {
             productos = productoRepository.buscarPorNombrePaginado(search, pageable);
